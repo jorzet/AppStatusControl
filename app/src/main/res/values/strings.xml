@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">AppStatusControl</string>
+    <string name="action_settings">Settings</string>
+
+    <!--LOGIN-->
+    <string name="login_title_text">LOGIN</string>
+    <string name="user_login_text">Usuario (nick)</string>
+    <string name="password_login_text">Clave</string>
+    <string name="login_text">Ingresar</string>
+    <string name="register_text">Registrarse</string>
+
+    <!--REGISTER-->
+    <string name="register_title_text">REGRISTRO DE USUARIOS</string>
+    <string name="register_subtitle_text">Ingrese sus datos personales</string>
+    <string name="email_register_text">Email</string>
+    <string name="password_register_text">Password</string>
+    <string name="nick_register_text">Nick</string>
+    <string name="complete_name_register_text">Nombre completo</string>
+    <string name="continue_register_text">Continuar</string>
+    <string name="cancel_register_text">Cancelar</string>
+
+</resources>
