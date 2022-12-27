@@ -7,21 +7,34 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.statuscontrol.databinding.ActivityHomeBinding
+import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.utils.click
 import com.app.statuscontrol.utils.showOffline
 import com.app.statuscontrol.utils.showOnline
+import com.app.statuscontrol.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
-class HomeActivity: AppCompatActivity() {
+class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     // Binding
     private lateinit var binding: ActivityHomeBinding
 
+    // View model
+    private val viewModel: HomeViewModel by viewModels()
+
     // Receiver
     private lateinit var mNetworkChangeReceiver: NetworkChangeReceiver
+
+    // Text to speech
+    private lateinit var textToSpeech: TextToSpeech
 
     private var isConnected: Boolean = true
 
@@ -36,13 +49,59 @@ class HomeActivity: AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
+        setUpComponents()
         setUpListeners()
-        registerNetworkBroadcastForNougat()
+        initObservers()
+        //registerNetworkBroadcastForNougat()
 
         supportFragmentManager
             .beginTransaction()
             .add(binding.fragmentContainerView.id, LaneStatusFragment())
             .commit()
+    }
+
+    private fun setUpComponents() {
+        textToSpeech = TextToSpeech(this, this)
+        viewModel.getUserLane()
+    }
+
+    private fun initObservers() {
+        viewModel.userLaneState.observe(this) { state ->
+            when(state) {
+                is Resource.Success -> {
+                    binding.welcomeTextView.text = state.data.lane
+                    if (state.data.status) {
+                        binding.onlineImageView.showOnline()
+                    } else {
+                        binding.onlineImageView.showOffline()
+                    }
+                    viewModel.getLane(state.data)
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.laneState.observe(this) { state ->
+            when(state) {
+                is Resource.Success -> {
+                    viewModel.saveLaneToLocal(state.data)
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.modifyLaneState.observe(this) { state ->
+            when(state) {
+                is Resource.Success -> {
+                    if (state.data.status) {
+                        binding.onlineImageView.showOnline()
+                    } else {
+                        binding.onlineImageView.showOffline()
+                    }
+                }
+                else -> Unit
+            }
+        }
     }
 
     private fun registerNetworkBroadcastForNougat() {
@@ -83,6 +142,10 @@ class HomeActivity: AppCompatActivity() {
     private fun setUpListeners() {
         binding.closeApp click {
             finish()
+            viewModel.logout()
+        }
+        binding.btnChangeStatus click {
+            viewModel.changeLaneStatus()
         }
     }
 
@@ -122,6 +185,20 @@ class HomeActivity: AppCompatActivity() {
                 e.printStackTrace()
 
             }
+        }
+    }
+
+    override fun onInit(status: Int) {
+        if ( status == TextToSpeech.SUCCESS ) {
+            val result = textToSpeech.setLanguage( Locale.getDefault() );
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "This Language is not supported");
+            } else {
+
+            }
+        } else {
+            Log.e("TTS", "Initilization Failed!");
         }
     }
 }

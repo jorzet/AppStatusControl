@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import com.app.statuscontrol.databinding.FragmentLaneStatusBinding
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.ui.home.adapter.LaneStatusAdapter
+import com.app.statuscontrol.utils.click
 import com.app.statuscontrol.viewmodel.LaneStatusViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -37,11 +38,9 @@ class LaneStatusFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
         initObservers()
-        setUpListeners()
-
+        setUpListener()
         getAllLaneStatus()
     }
-
 
     private fun initRecyclerView() {
         binding.rvLaneStatusList.apply {
@@ -60,8 +59,12 @@ class LaneStatusFragment: Fragment() {
         }
     }
 
-    private fun setUpListeners() {
-
+    private fun setUpListener() {
+        binding.btnUserStatus click {
+            activity?.let {
+                (it as HomeActivity).showUserStatus()
+            }
+        }
     }
 
     private fun getAllLaneStatus() {

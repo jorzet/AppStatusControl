@@ -1,4 +1,4 @@
-package com.app.statuscontrol.domain.interactor
+package com.app.statuscontrol.domain.interactor.login
 
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.domain.model.User
@@ -23,7 +23,8 @@ class FirebaseSignUpUseCase @Inject constructor(
                     email = email,
                     password = password,
                     nick = nick,
-                    name = name
+                    name = name,
+                    status = true
                 )
             )
 

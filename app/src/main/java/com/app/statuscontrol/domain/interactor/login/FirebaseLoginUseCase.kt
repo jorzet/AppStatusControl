@@ -1,4 +1,4 @@
-package com.app.statuscontrol.domain.interactor
+package com.app.statuscontrol.domain.interactor.login
 
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.domain.model.User
@@ -18,6 +18,8 @@ class FirebaseLoginUseCase @Inject constructor(
         val userUID = authRepository.login(nick,password)
         if (userUID.isNotEmpty()) {
             val user = userRepository.getUser(uid = userUID)
+            user.status = true
+            userRepository.modifyUser(user)
             emit(Resource.Success(user))
             emit(Resource.Finished)
         } else {

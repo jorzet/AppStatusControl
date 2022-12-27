@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.statuscontrol.domain.interactor.FirebaseSignUpUseCase
+import com.app.statuscontrol.domain.interactor.login.FirebaseSignUpUseCase
 import com.app.statuscontrol.domain.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn

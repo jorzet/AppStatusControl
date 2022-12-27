@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.statuscontrol.domain.interactor.login.FirebaseLoginUseCase
+import com.app.statuscontrol.domain.interactor.home.FirebaseGetAllUserStatus
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,18 +14,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val loginUseCase: FirebaseLoginUseCase
-) :  ViewModel() {
+class UserStatusViewModel @Inject constructor(
+    private val getAllUserStatussRealTimeUseCase: FirebaseGetAllUserStatus
+): ViewModel() {
 
-    private val _loginState: MutableLiveData<Resource<User>> = MutableLiveData()
-    val loginState: LiveData<Resource<User>>
-        get() = _loginState
+    private val _userListState: MutableLiveData<Resource<List<User>>> = MutableLiveData()
+    val userListState: LiveData<Resource<List<User>>>
+        get() = _userListState
 
-    fun login(email: String, password: String) {
+    fun getAllUSerStatus() {
         viewModelScope.launch {
-            loginUseCase(email, password).onEach { state ->
-                _loginState.value = state
+            getAllUserStatussRealTimeUseCase().onEach {
+                _userListState.value = it
             }.launchIn(viewModelScope)
         }
     }

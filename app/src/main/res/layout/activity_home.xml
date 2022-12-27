@@ -32,6 +32,15 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_change_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_toStartOf="@+id/close_app"
+            android:layout_marginEnd="20dp"
+            android:text="Cambiar status" />
+
         <ImageButton
             android:id="@+id/close_app"
             android:layout_width="30dp"

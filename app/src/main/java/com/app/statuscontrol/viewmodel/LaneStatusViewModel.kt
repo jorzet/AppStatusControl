@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.statuscontrol.domain.interactor.FirebaseGetAllLaneUseCase
+import com.app.statuscontrol.domain.interactor.home.FirebaseGetAllLaneUseCase
 import com.app.statuscontrol.domain.model.LaneStatus
 import com.app.statuscontrol.domain.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,18 +15,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LaneStatusViewModel @Inject constructor(
-    private val getAllNotesRealTimeUseCase: FirebaseGetAllLaneUseCase
+    private val getAllLaneStatusRealTimeUseCase: FirebaseGetAllLaneUseCase
 ): ViewModel() {
 
     private val _laneListState: MutableLiveData<Resource<List<LaneStatus>>> = MutableLiveData()
     val laneListState: LiveData<Resource<List<LaneStatus>>>
         get() = _laneListState
 
-
     fun getAllLaneStatus() {
         viewModelScope.launch {
-            getAllNotesRealTimeUseCase().onEach {
-                _laneListState.value = it
+            getAllLaneStatusRealTimeUseCase().onEach { lane ->
+                _laneListState.value = lane
             }.launchIn(viewModelScope)
         }
     }
