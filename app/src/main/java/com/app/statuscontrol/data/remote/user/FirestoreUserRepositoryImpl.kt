@@ -1,10 +1,8 @@
-package com.app.statuscontrol.data.remote
+package com.app.statuscontrol.data.remote.user
 
 import com.app.statuscontrol.domain.model.User
 import com.app.statuscontrol.domain.repository.UserRepository
 import com.app.statuscontrol.data.util.FirebaseConstants.USERS_COLLECTION
-import com.app.statuscontrol.data.cache.SaveSessionLocalRepositoryImpl
-import com.app.statuscontrol.domain.repository.SaveLaneLocalRepository
 import com.app.statuscontrol.domain.repository.SaveSessionLocalRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -24,6 +22,9 @@ class FirestoreUserRepositoryImpl @Inject constructor(
                 .addOnCompleteListener {
                     isSuccessful = it.isSuccessful
                     saveSessionLocalRepository.execute(user)
+                }
+                .addOnFailureListener {
+                    it.printStackTrace()
                 }
                 .await()
             isSuccessful

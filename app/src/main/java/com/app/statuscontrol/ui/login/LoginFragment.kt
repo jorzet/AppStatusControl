@@ -139,9 +139,15 @@ class LoginFragment: Fragment() {
             if (isLoading) {
                 loading.setVisible()
                 loginButton.setGone()
+                registerButton.isEnabled = false
+                clickHereTextView.isEnabled = false
+                closeApp.isEnabled = false
             } else {
                 loading.setGone()
                 loginButton.setVisible()
+                registerButton.isEnabled = true
+                clickHereTextView.isEnabled = true
+                closeApp.isEnabled = true
             }
         }
     }

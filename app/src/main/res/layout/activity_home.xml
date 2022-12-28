@@ -2,55 +2,73 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/toolbar_status"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@color/blue_toolbar_home_background">
+        android:background="@color/blue_toolbar_home_background"
+        android:orientation="horizontal"
+        android:elevation="20dp"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <ImageView
-            android:id="@+id/online_image_view"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/ic_red_dot" />
-
-        <TextView
-            android:id="@+id/welcome_text_view"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_toLeftOf="@+id/close_app"
-            android:layout_toRightOf="@+id/online_image_view"
-            android:text=""
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.3"
+            android:layout_marginStart="5dp">
+
+            <ImageView
+                android:id="@+id/online_image_view"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_red_dot" />
+
+            <TextView
+                android:id="@+id/welcome_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_toLeftOf="@+id/close_app"
+                android:layout_toRightOf="@+id/online_image_view"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_change_status"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.3"
+            android:layout_toStartOf="@+id/close_app_container"
+            android:text="Cambiar status"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:background="@drawable/change_status_background_button"/>
+
+        <RelativeLayout
+            android:id="@+id/close_app_container"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_toStartOf="@+id/close_app"
-            android:layout_marginEnd="20dp"
-            android:text="Cambiar status" />
-
-        <ImageButton
-            android:id="@+id/close_app"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/close_icon"/>
-
-    </RelativeLayout>
+            android:layout_weight="0.3">
+            <ImageButton
+                android:id="@+id/close_app"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/close_icon" />
+        </RelativeLayout>
+    </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container_view"

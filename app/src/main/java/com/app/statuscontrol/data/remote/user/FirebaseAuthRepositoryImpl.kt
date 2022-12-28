@@ -1,4 +1,4 @@
-package com.app.statuscontrol.data.remote
+package com.app.statuscontrol.data.remote.user
 
 import com.app.statuscontrol.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +35,9 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
             firebaseAuth.createUserWithEmailAndPassword(nickMail, password)
                 .addOnSuccessListener {
                     userUID = it.user?.uid ?: ""
+                }
+                .addOnFailureListener {
+                    it.printStackTrace()
                 }
                 .await()
             userUID

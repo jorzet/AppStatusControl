@@ -6,10 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.statuscontrol.domain.interactor.home.*
 import com.app.statuscontrol.domain.interactor.login.FirebaseLogoutUseCase
+import com.app.statuscontrol.domain.interactor.notification.FirebaseGetLastNotificationUseCase
+import com.app.statuscontrol.domain.interactor.notification.FirebaseSendNotificationUseCase
 import com.app.statuscontrol.domain.model.LaneStatus
+import com.app.statuscontrol.domain.model.Notification
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -21,7 +26,9 @@ class HomeViewModel @Inject constructor(
     private val userUseCase: FirebaseUserUseCase,
     private val cacheSaveLaneUseCase: CacheSaveLaneUseCase,
     private val getLaneUseCase: FirebaseGetLaneUseCase,
-    private val changeLaneStatusUseCase: FirebaseChangeLaneStatusUseCase
+    private val changeLaneStatusUseCase: FirebaseChangeLaneStatusUseCase,
+    private val sendNotificationUseCase: FirebaseSendNotificationUseCase,
+    private val getLastNotificationUseCase: FirebaseGetLastNotificationUseCase
 ): ViewModel() {
     private val _logoutState: MutableLiveData<Resource<User>> = MutableLiveData()
     val logoutState: LiveData<Resource<User>>
@@ -38,6 +45,14 @@ class HomeViewModel @Inject constructor(
     private val _modifyLaneState: MutableLiveData<Resource<LaneStatus>> = MutableLiveData()
     val modifyLaneState: LiveData<Resource<LaneStatus>>
         get() = _modifyLaneState
+
+    private val _notifyLaneState: MutableLiveData<Resource<Boolean>> = MutableLiveData()
+    val notifyLaneState: LiveData<Resource<Boolean>>
+        get() = _notifyLaneState
+
+    private val _getNotificationLaneState: MutableLiveData<Resource<Notification>> = MutableLiveData()
+    val getNotificationLaneState: LiveData<Resource<Notification>>
+        get() = _getNotificationLaneState
 
     fun logout() {
         viewModelScope.launch {
@@ -75,6 +90,24 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             changeLaneStatusUseCase().onEach { lane ->
                 _modifyLaneState.value = lane
+                if (lane is Resource.Success)
+                    notifyLaneStatus(lane.data)
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    fun notifyLaneStatus(laneStatus: LaneStatus) {
+        viewModelScope.launch {
+            sendNotificationUseCase(laneStatus).onEach {
+                _notifyLaneState.value = it
+            }.launchIn(viewModelScope)
+        }
+    }
+
+    fun getNotification() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getLastNotificationUseCase().onEach {
+                _getNotificationLaneState.value = it
             }.launchIn(viewModelScope)
         }
     }

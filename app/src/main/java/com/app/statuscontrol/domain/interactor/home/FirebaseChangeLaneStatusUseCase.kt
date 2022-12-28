@@ -31,6 +31,7 @@ class FirebaseChangeLaneStatusUseCase @Inject constructor(
             lane.status = !lane.status
             lane.lastModification = currentTime.toString()
             laneStatusRepository.saveLaneStatus(lane)
+            saveLaneLocalRepository.save(lane)
             emit(Resource.Success(lane))
         }
     }

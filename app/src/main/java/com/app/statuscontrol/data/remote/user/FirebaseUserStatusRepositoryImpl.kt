@@ -1,10 +1,8 @@
-package com.app.statuscontrol.data.remote
+package com.app.statuscontrol.data.remote.user
 
 import com.app.statuscontrol.data.util.FirebaseConstants
-import com.app.statuscontrol.domain.model.LaneStatus
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.domain.model.User
-import com.app.statuscontrol.domain.model.UserStatus
 import com.app.statuscontrol.domain.repository.UserStatusRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await

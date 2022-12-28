@@ -1,9 +1,8 @@
-package com.app.statuscontrol.data.remote
+package com.app.statuscontrol.data.remote.lane
 
 import com.app.statuscontrol.domain.model.LaneStatus
 import com.app.statuscontrol.domain.model.Resource
 import com.app.statuscontrol.data.util.FirebaseConstants.LANE_STATUS_COLLECTION
-import com.app.statuscontrol.domain.model.User
 import com.app.statuscontrol.domain.repository.LaneStatusRepository
 import com.app.statuscontrol.domain.repository.SaveLaneLocalRepository
 import com.google.firebase.firestore.FirebaseFirestore
