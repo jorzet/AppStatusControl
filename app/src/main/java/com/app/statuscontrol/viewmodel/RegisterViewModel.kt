@@ -32,10 +32,10 @@ class RegisterViewModel @Inject constructor(
     val signUpState: LiveData<Resource<Boolean>>
         get() = _signUpState
 
-    fun signUp(email: String, password: String, nick: String, name: String) {
+    fun signUp(email: String, password: String, nick: String, name: String, isEmployee: Boolean) {
         viewModelScope.launch {
             if(password.length >= 6) {
-                signUpUseCase(email, password, nick, name).onEach { state ->
+                signUpUseCase(email, password, nick, name, isEmployee).onEach { state ->
                     _signUpState.value = state
                 }.launchIn(viewModelScope)
             } else {

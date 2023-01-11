@@ -85,12 +85,13 @@ class RegisterFragment: Fragment() {
         val pass = binding.passwordTextInputEditText.text.toString()
         val nick = binding.nickTextInputEditText.text.toString()
         val completeName = binding.completeNameTextInputEditText.text.toString()
+        val isEmployee = binding.cbIsEmployee.isChecked
         if (email.isNotEmpty()) {
             if (viewModel.validateEmail(email)) {
                 if (pass.isNotEmpty()) {
                     if (nick.isNotEmpty()) {
                         if (completeName.isNotEmpty()) {
-                            viewModel.signUp(email, pass, nick, completeName)
+                            viewModel.signUp(email, pass, nick, completeName, isEmployee)
                         } else {
                             showError("Necesita ingresar su nombre completo")
                         }

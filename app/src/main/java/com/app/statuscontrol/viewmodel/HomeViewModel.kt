@@ -8,13 +8,8 @@ import com.app.statuscontrol.domain.interactor.home.*
 import com.app.statuscontrol.domain.interactor.login.FirebaseLogoutUseCase
 import com.app.statuscontrol.domain.interactor.notification.FirebaseGetLastNotificationUseCase
 import com.app.statuscontrol.domain.interactor.notification.FirebaseSendNotificationUseCase
-import com.app.statuscontrol.domain.model.LaneStatus
-import com.app.statuscontrol.domain.model.Notification
-import com.app.statuscontrol.domain.model.Resource
-import com.app.statuscontrol.domain.model.User
+import com.app.statuscontrol.domain.model.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -54,18 +49,25 @@ class HomeViewModel @Inject constructor(
     val getNotificationLaneState: LiveData<Resource<Notification>>
         get() = _getNotificationLaneState
 
+    private val _userTypeState: MutableLiveData<User?> = MutableLiveData()
+    val userTypeState: LiveData<User?>
+        get() = _userTypeState
+
     fun logout() {
         viewModelScope.launch {
             logoutUseCase().onEach { state ->
                 _logoutState.value = state
             }.launchIn(viewModelScope)
+
         }
     }
 
-    fun getUserLane() {
+    fun getUser() {
         viewModelScope.launch {
             userUseCase().onEach { user ->
                 _userLaneState.value = user
+                if (user is Resource.Success)
+                    _userTypeState.value = user.data
             }.launchIn(viewModelScope)
         }
     }
@@ -105,7 +107,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getNotification() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             getLastNotificationUseCase().onEach {
                 _getNotificationLaneState.value = it
             }.launchIn(viewModelScope)

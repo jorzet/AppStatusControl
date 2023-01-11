@@ -42,6 +42,7 @@ class FirebaseNotificationRepositoryImp @Inject constructor(
             } else {
                 notification.id.toInt()
             }
+            notification.id = id.toString()
 
             FirebaseFirestore.getInstance().collection(FirebaseConstants.NOTIFICATION_COLLECTION)
                 .document(id.toString())

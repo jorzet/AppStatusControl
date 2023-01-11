@@ -14,6 +14,8 @@ class FirebaseGetAllLaneUseCase @Inject constructor(
     private val laneStatusRepository: LaneStatusRepository,
 ) {
     suspend operator fun invoke(): Flow<Resource<List<LaneStatus>>> = callbackFlow {
+        this.trySend(Resource.Loading)
+
         val event = FirebaseFirestore.getInstance().collection(FirebaseConstants.LANE_STATUS_COLLECTION)
 
         val subscription = event.addSnapshotListener { snapshot, error ->

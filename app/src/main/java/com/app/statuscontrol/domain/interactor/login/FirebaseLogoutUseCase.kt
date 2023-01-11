@@ -23,7 +23,7 @@ class FirebaseLogoutUseCase @Inject constructor(
             user.status = false
             userRepository.modifyUser(user)
             authRepository.logout()
-            //saveSessionLocalInteractor.deleteUserSession()
+            saveSessionLocalInteractor.deleteUserSession()
 
             emit(Resource.Success(user))
             emit(Resource.Finished)

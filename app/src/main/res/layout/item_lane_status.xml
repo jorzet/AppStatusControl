@@ -17,6 +17,14 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_centerInParent="true">
+
+            <ImageView
+                android:id="@+id/edit_lane"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:background="@android:drawable/ic_menu_edit" />
+
             <ImageView
                 android:id="@+id/online_image_view"
                 android:layout_width="30dp"

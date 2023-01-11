@@ -1,12 +1,12 @@
 package com.app.statuscontrol.di
 
-
 import com.app.statuscontrol.data.cache.SaveLaneLocalRepositoryImpl
 import com.app.statuscontrol.data.remote.user.FirebaseAuthRepositoryImpl
 import com.app.statuscontrol.data.remote.lane.FirebaseLaneStatusRepositoryImp
 import com.app.statuscontrol.data.remote.user.FirebaseUserStatusRepositoryImpl
 import com.app.statuscontrol.data.remote.user.FirestoreUserRepositoryImpl
 import com.app.statuscontrol.data.cache.SaveSessionLocalRepositoryImpl
+import com.app.statuscontrol.data.remote.employee.FirebaseEmployeeRepository
 import com.app.statuscontrol.data.remote.notification.FirebaseNotificationRepositoryImp
 import com.app.statuscontrol.domain.repository.*
 import dagger.Binds
@@ -29,6 +29,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindUserStatusRepository(userStatusRepository: FirebaseUserStatusRepositoryImpl): UserStatusRepository
+
+    @Binds
+    abstract fun bindUserStatusRepository(employeeRepository: FirebaseEmployeeRepository): EmployeeRepository
 
     @Binds
     abstract fun bindSaveSessionLocalRepository(saveSessionLocalRepository: SaveSessionLocalRepositoryImpl): SaveSessionLocalRepository

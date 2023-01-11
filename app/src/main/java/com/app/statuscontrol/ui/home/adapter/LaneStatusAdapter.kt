@@ -7,10 +7,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.app.statuscontrol.databinding.ItemLaneStatusBinding
 import com.app.statuscontrol.domain.model.LaneStatus
-import com.app.statuscontrol.utils.showOffline
-import com.app.statuscontrol.utils.showOnline
+import com.app.statuscontrol.utils.*
 
-class LaneStatusAdapter: ListAdapter<LaneStatus, LaneStatusAdapter.Holder>(Companion) {
+class LaneStatusAdapter(val isAdmin: Boolean): ListAdapter<LaneStatus, LaneStatusAdapter.Holder>(Companion) {
 
     companion object : DiffUtil.ItemCallback<LaneStatus>() {
         override fun areItemsTheSame(oldItem: LaneStatus, newItem: LaneStatus): Boolean {
@@ -36,6 +35,15 @@ class LaneStatusAdapter: ListAdapter<LaneStatus, LaneStatusAdapter.Holder>(Compa
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val laneStatus = currentList[position]
 
+        if (isAdmin) {
+            holder.binding.editLane.setVisible()
+            holder.binding.editLane click {
+                onEditLaneClickListener?.invoke(laneStatus)
+            }
+        } else{
+            holder.binding.editLane.setGone()
+        }
+
         holder.binding.tvLane.text = laneStatus.lane
         holder.binding.tvModifiedBy.text = laneStatus.modifiedBy
         holder.binding.tvLastModification.text = laneStatus.lastModification
@@ -47,9 +55,9 @@ class LaneStatusAdapter: ListAdapter<LaneStatus, LaneStatusAdapter.Holder>(Compa
         }
     }
 
-    protected var onNoteClickListener : ((LaneStatus) -> Unit)? = null
+    protected var onEditLaneClickListener : ((LaneStatus) -> Unit)? = null
 
-    fun setNoteClickListener(listener: (LaneStatus) -> Unit){
-        onNoteClickListener = listener
+    fun setEditLaneClickListener(listener: (LaneStatus) -> Unit){
+        onEditLaneClickListener = listener
     }
 }

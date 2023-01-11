@@ -1,5 +1,7 @@
 package com.app.statuscontrol.domain.model
 
+import com.google.gson.annotations.SerializedName
+
 data class User(
     val uid: String = "",
     val email: String = "",
@@ -8,5 +10,6 @@ data class User(
     val name: String = "",
     val lane: String = "Caja 1",
     val laneId: String = "1",
-    var status: Boolean = false
+    var status: Boolean = false,
+    var userType: String = ""
 )

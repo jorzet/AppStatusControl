@@ -13,27 +13,31 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import com.app.statuscontrol.R
 import com.app.statuscontrol.databinding.ActivityHomeBinding
-import com.app.statuscontrol.domain.model.LoginAction
-import com.app.statuscontrol.domain.model.Notification
-import com.app.statuscontrol.domain.model.Resource
+import com.app.statuscontrol.domain.model.*
+import com.app.statuscontrol.service.AppStatusControlService
 import com.app.statuscontrol.ui.login.LoginActivity
-import com.app.statuscontrol.utils.click
-import com.app.statuscontrol.utils.showOffline
-import com.app.statuscontrol.utils.showOnline
+import com.app.statuscontrol.utils.*
 import com.app.statuscontrol.viewmodel.HomeViewModel
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.messaging.ktx.remoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 
 @AndroidEntryPoint
-class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
+class HomeActivity: AppCompatActivity(){
     // Binding
     private lateinit var binding: ActivityHomeBinding
 
@@ -43,11 +47,7 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
     // Receiver
     private lateinit var mNetworkChangeReceiver: NetworkChangeReceiver
 
-    // Text to speech
-    private lateinit var textToSpeech: TextToSpeech
-
     private var isConnected: Boolean = true
-
 
     companion object {
         const val HOME_ACTION = "home_action"
@@ -63,33 +63,97 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         setUpListeners()
         initObservers()
         //registerNetworkBroadcastForNougat()
+        //checkSystemWritePermission()
+        startForegroundService(Intent(this, AppStatusControlService::class.java))
+        startReceiver()
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(binding.fragmentContainerView.id, LaneStatusFragment())
-            .commit()
+        Firebase.messaging.token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+
+            // Log and toast
+            val msg = getString(R.string.msg_token_fmt, token)
+            Log.d("FCM", msg)
+            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+        })
+
+        Firebase.messaging.subscribeToTopic("notification_status")
+            .addOnCompleteListener { task ->
+                var msg = "Subscribed"
+                if (!task.isSuccessful) {
+                    msg = "Subscribe failed"
+                }
+                Log.d("FCM", msg)
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            }
+        sendUpstream()
     }
 
-    override fun onDestroy() {
-        if (::textToSpeech.isInitialized) {
-            textToSpeech.stop()
-            textToSpeech.shutdown()
+    fun deviceGroupUpstream() {
+        // [START fcm_device_group_upstream]
+        val to = "a_unique_key" // the notification key
+        val msgId = AtomicInteger()
+        Firebase.messaging.send(remoteMessage(to) {
+            setMessageId(msgId.get().toString())
+            addData("hello", "world")
+        })
+        // [END fcm_device_group_upstream]
+    }
+
+    fun sendUpstream() {
+        val SENDER_ID = "383305896074"
+        val messageId = 0 // Increment for each
+        // [START fcm_send_upstream]
+        val fm = Firebase.messaging
+        fm.send(remoteMessage("$SENDER_ID@fcm.googleapis.com") {
+            setMessageId(messageId.toString())
+            addData("my_message", "Hello World")
+            addData("my_action", "SAY_HELLO")
+        })
+        // [END fcm_send_upstream]
+    }
+
+    private fun checkSystemWritePermission(): Boolean {
+        var retVal = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            retVal = Settings.System.canWrite(this)
+            Log.d("TAG", "Can Write Settings: $retVal")
+            if (retVal) {
+                ///Permission granted by the user
+            } else {
+                //permission not granted navigate to permission screen
+                openAndroidPermissionsMenu()
+            }
         }
-        super.onDestroy()
+        return retVal
+    }
+
+    private fun openAndroidPermissionsMenu() {
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+        intent.data = Uri.parse("package:" + this.packageName)
+        startActivity(intent)
     }
 
     private fun setUpComponents() {
-        textToSpeech = TextToSpeech(this, this)
-        viewModel.getUserLane()
-        viewModel.getNotification()
+        viewModel.getUser()
+        //viewModel.getNotification()
     }
 
     private fun initObservers() {
         viewModel.userLaneState.observe(this) { state ->
             when(state) {
+                is Resource.Loading -> {
+                    handleLoading(true)
+                }
                 is Resource.Success -> {
                     binding.welcomeTextView.text = state.data.lane
                     viewModel.getLane(state.data)
+                    handleLoading(false)
                 }
                 else -> Unit
             }
@@ -97,6 +161,10 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
 
         viewModel.laneState.observe(this) { state ->
             when(state) {
+
+                is Resource.Loading -> {
+                    handleLoading(true)
+                }
                 is Resource.Success -> {
                     viewModel.saveLaneToLocal(state.data)
                     if (state.data.status) {
@@ -104,6 +172,7 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
                     } else {
                         binding.onlineImageView.showOffline()
                     }
+                    handleLoading(false)
                 }
                 else -> Unit
             }
@@ -111,22 +180,53 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
 
         viewModel.modifyLaneState.observe(this) { state ->
             when(state) {
+                is Resource.Loading -> {
+                    handleLoading(true)
+                }
                 is Resource.Success -> {
                     if (state.data.status) {
                         binding.onlineImageView.showOnline()
                     } else {
                         binding.onlineImageView.showOffline()
                     }
+                    handleLoading(false)
                 }
                 else -> Unit
             }
         }
         viewModel.getNotificationLaneState.observe(this) { state ->
             when(state) {
+                is Resource.Loading -> {
+                    handleLoading(true)
+                }
                 is Resource.Success -> {
                     showNotification(state.data)
+                    handleLoading(false)
                 }
                 else -> Unit
+            }
+        }
+        viewModel.userTypeState.observe(this) { user ->
+            user?.let {
+                showLaneStatus(user)
+                binding.welcomeTextView.text = "Bienvenido ${user.name}"
+                when(user.userType) {
+                    UserType.ADMIN.userType -> {
+                        binding.onlineImageView.setGone()
+                        binding.btnChangeStatus.setGone()
+                        binding.btnAddNewLane.setVisible()
+                    }
+                    UserType.CONSUMER.userType -> {
+                        binding.onlineImageView.setGone()
+                        binding.btnChangeStatus.setGone()
+                        binding.btnAddNewLane.setGone()
+                    }
+                    UserType.EMPLOYEE.userType -> {
+                        binding.onlineImageView.setVisible()
+                        binding.btnChangeStatus.setVisible()
+                        binding.btnAddNewLane.setGone()
+                    }
+                }
             }
         }
     }
@@ -166,6 +266,34 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
             .commit()
     }
 
+    fun showCreateNewLane() {
+        supportFragmentManager
+            .beginTransaction()
+            .add(binding.fragmentContainerView.id, CreateLaneFragment())
+            .addToBackStack("create_new_lane")
+            .commit()
+        binding.btnAddNewLane.setGone()
+    }
+
+    fun showEditLane(laneStatus: LaneStatus, user: User) {
+        val createNewLane = CreateLaneFragment()
+        createNewLane.setLaneStatus(laneStatus)
+        createNewLane.setCurrentUser(user)
+        supportFragmentManager
+            .beginTransaction()
+            .add(binding.fragmentContainerView.id, createNewLane)
+            .addToBackStack("create_new_lane")
+            .commit()
+        binding.btnAddNewLane.setGone()
+    }
+
+    fun showLaneStatus(user: User) {
+        supportFragmentManager
+            .beginTransaction()
+            .add(binding.fragmentContainerView.id, LaneStatusFragment(user))
+            .commit()
+    }
+
     private fun setUpListeners() {
         binding.closeApp click {
             val intent = Intent(this, LoginActivity::class.java)
@@ -177,6 +305,9 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         }
         binding.btnChangeStatus click {
             viewModel.changeLaneStatus()
+        }
+        binding.btnAddNewLane click {
+            showCreateNewLane()
         }
     }
 
@@ -221,13 +352,6 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         notificationManager.notify(0 , notificationBuilder.build())
-
-        speakSomething(text)
-    }
-
-    private fun speakSomething(message: String) {
-        textToSpeech.stop()
-        textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH, null );
     }
 
     /**
@@ -265,17 +389,63 @@ class HomeActivity: AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    override fun onInit(status: Int) {
-        if ( status == TextToSpeech.SUCCESS ) {
-            val result = textToSpeech.setLanguage( Locale.getDefault() );
-
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "This Language is not supported");
-            } else {
-                Log.d("TTS", "TTS ready")
+    /*
+     * This method just register the BroadcastReceiver
+     */
+    private fun startReceiver() {
+        try {
+            if (notificationBroadCast != null) {
+                this.registerReceiver(notificationBroadCast, IntentFilter(AppStatusControlService.NOTIFICATION_BR))
             }
-        } else {
-            Log.e("TTS", "Initilization Failed!");
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        } catch (e: kotlin.Exception) {
+            e.printStackTrace()
         }
+    }
+
+    /*
+     * this method unregister the BroadcastReceiver and change flag to identify
+     * that all images are downloaded
+     */
+    private fun stopReceiver() {
+        try {
+            if (notificationBroadCast != null) {
+                this.unregisterReceiver(notificationBroadCast)
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        } catch (e: kotlin.Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private val notificationBroadCast = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.extras != null) {
+                if (intent.getBooleanExtra(AppStatusControlService.NOTIFICATION_SUCEESS,false)) {
+                    val notification: Notification = intent.getSerializableExtra(AppStatusControlService.NOTIFICATION_STATUS) as Notification
+                   showNotification(notification)
+                }
+            }
+        }
+    }
+
+    private fun handleLoading(isLoading: Boolean) {
+        with(binding) {
+            if (isLoading) {
+               loading.setVisible()
+                fragmentContainerView.setGone()
+                buttonsContainer.setGone()
+            } else {
+                loading.setGone()
+                fragmentContainerView.setVisible()
+                buttonsContainer.setVisible()
+            }
+        }
+    }
+
+    fun getUserInfo() {
+        viewModel.getUser()
     }
 }
