@@ -31,7 +31,7 @@ abstract class RepositoryModule {
     abstract fun bindUserStatusRepository(userStatusRepository: FirebaseUserStatusRepositoryImpl): UserStatusRepository
 
     @Binds
-    abstract fun bindUserStatusRepository(employeeRepository: FirebaseEmployeeRepository): EmployeeRepository
+    abstract fun bindEmployeeRepository(employeeRepository: FirebaseEmployeeRepository): EmployeeRepository
 
     @Binds
     abstract fun bindSaveSessionLocalRepository(saveSessionLocalRepository: SaveSessionLocalRepositoryImpl): SaveSessionLocalRepository

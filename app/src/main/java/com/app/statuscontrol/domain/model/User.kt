@@ -8,8 +8,9 @@ data class User(
     val password: String = "",
     val nick: String = "",
     val name: String = "",
-    val lane: String = "Caja 1",
-    val laneId: String = "1",
+    var lane: String = "Caja 1",
+    var laneId: String = "1",
     var status: Boolean = false,
-    var userType: String = ""
+    var userType: String = "",
+    var deviceID: String = ""
 )

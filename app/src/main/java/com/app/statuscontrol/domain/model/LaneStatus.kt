@@ -5,5 +5,6 @@ data class LaneStatus(
     var lane: String = "",
     var status: Boolean = false,
     var modifiedBy: String = "",
-    var lastModification: String = ""
+    var lastModification: String = "",
+    var userUid: String = ""
 )

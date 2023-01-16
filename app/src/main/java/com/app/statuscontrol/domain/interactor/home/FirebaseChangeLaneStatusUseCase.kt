@@ -25,6 +25,7 @@ class FirebaseChangeLaneStatusUseCase @Inject constructor(
         lane?.let {
             user?.let {
                 lane.modifiedBy = user.name
+                lane.userUid = user.uid
                 lane.id = user.laneId
             }
 

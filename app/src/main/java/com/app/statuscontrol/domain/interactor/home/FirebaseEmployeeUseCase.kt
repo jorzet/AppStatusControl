@@ -14,9 +14,9 @@ class FirebaseEmployeeUseCase @Inject constructor(
         emit(Resource.Loading)
 
         val employees = employeeRepository.getAllEmployees()
-        if (!employees.isNullOrEmpty())
+        if (employees.isNullOrEmpty())
             emit(Resource.Error("Error"))
         else
-            emit(Resource.Success(employees!!))
+            emit(Resource.Success(employees))
     }
 }

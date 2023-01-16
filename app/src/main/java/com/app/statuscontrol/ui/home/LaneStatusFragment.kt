@@ -44,17 +44,17 @@ class LaneStatusFragment(val user: User): Fragment() {
         initObservers()
         setUpListener()
         //viewModel.getUser()
-        initRecyclerView(user)
+        initRecyclerView()
         getAllLaneStatus()
     }
 
-    private fun initRecyclerView(user: User) {
+    private fun initRecyclerView() {
         val isAdmin = user.userType == UserType.ADMIN.userType
 
         laneAdapter = LaneStatusAdapter(isAdmin)
         if (isAdmin) {
             laneAdapter.setEditLaneClickListener { laneStatus ->
-                (activity as HomeActivity).showEditLane(laneStatus, user)
+                (activity as HomeActivity).showEditLane(laneStatus)
             }
         }
         binding.rvLaneStatusList.apply {
@@ -86,7 +86,7 @@ class LaneStatusFragment(val user: User): Fragment() {
                     handleLoading(true)
                 }
                 is Resource.Success -> {
-                    initRecyclerView(userState.data)
+                    initRecyclerView()
                     getAllLaneStatus()
                     handleLoading(false)
                 }

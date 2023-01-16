@@ -13,17 +13,23 @@ class FirebaseLoginUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
 
-    suspend operator fun invoke(nick: String, password: String): Flow<Resource<User>> = flow {
+    suspend operator fun invoke(nick: String, password: String, deviceId: String): Flow<Resource<User>> = flow {
         emit(Resource.Loading)
         val userUID = authRepository.login(nick,password)
         if (userUID.isNotEmpty()) {
             val user = userRepository.getUser(uid = userUID)
-            user.status = true
-            userRepository.modifyUser(user)
-            emit(Resource.Success(user))
-            emit(Resource.Finished)
+            if (user.deviceID == deviceId || user.deviceID.isNullOrEmpty()) {
+                user.deviceID = deviceId
+                user.status = true
+                userRepository.modifyUser(user)
+                emit(Resource.Success(user))
+                emit(Resource.Finished)
+            } else {
+                emit(Resource.Error("Solo se puede iniciar sesion en un solo dispositivo, devincula para poder iniciar sesion"))
+                emit(Resource.Finished)
+            }
         } else {
-            emit(Resource.Error("Login error"))
+            emit(Resource.Error("Login error - El usuario no existe"))
             emit(Resource.Finished)
         }
     }

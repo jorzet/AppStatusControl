@@ -2,6 +2,7 @@ package com.app.statuscontrol.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -86,12 +87,13 @@ class RegisterFragment: Fragment() {
         val nick = binding.nickTextInputEditText.text.toString()
         val completeName = binding.completeNameTextInputEditText.text.toString()
         val isEmployee = binding.cbIsEmployee.isChecked
+        val deviceId = Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID);
         if (email.isNotEmpty()) {
             if (viewModel.validateEmail(email)) {
                 if (pass.isNotEmpty()) {
                     if (nick.isNotEmpty()) {
                         if (completeName.isNotEmpty()) {
-                            viewModel.signUp(email, pass, nick, completeName, isEmployee)
+                            viewModel.signUp(email, pass, nick, completeName, isEmployee, deviceId)
                         } else {
                             showError("Necesita ingresar su nombre completo")
                         }

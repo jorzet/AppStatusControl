@@ -79,7 +79,7 @@ class HomeActivity: AppCompatActivity(){
             // Log and toast
             val msg = getString(R.string.msg_token_fmt, token)
             Log.d("FCM", msg)
-            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
         })
 
         Firebase.messaging.subscribeToTopic("notification_status")
@@ -89,7 +89,7 @@ class HomeActivity: AppCompatActivity(){
                     msg = "Subscribe failed"
                 }
                 Log.d("FCM", msg)
-                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
             }
         sendUpstream()
     }
@@ -275,10 +275,10 @@ class HomeActivity: AppCompatActivity(){
         binding.btnAddNewLane.setGone()
     }
 
-    fun showEditLane(laneStatus: LaneStatus, user: User) {
+    fun showEditLane(laneStatus: LaneStatus) {
         val createNewLane = CreateLaneFragment()
         createNewLane.setLaneStatus(laneStatus)
-        createNewLane.setCurrentUser(user)
+        createNewLane.setSelectedUser(laneStatus.modifiedBy, laneStatus.userUid)
         supportFragmentManager
             .beginTransaction()
             .add(binding.fragmentContainerView.id, createNewLane)

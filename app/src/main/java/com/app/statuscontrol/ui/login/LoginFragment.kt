@@ -3,6 +3,7 @@ package com.app.statuscontrol.ui.login
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -86,9 +87,11 @@ class LoginFragment: Fragment() {
     private fun login() {
         val nick = binding.userNickTextInputEditText.text.toString()
         val pass = binding.passwordTextInputEditText.text.toString()
+        val deviceId = Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID)
+
         if (nick.isNotEmpty()) {
             if (pass.isNotEmpty()) {
-                viewModel.login(nick, pass)
+                viewModel.login(nick, pass, deviceId)
             } else {
                 showError("Necesita ingresar una contraseña")
             }

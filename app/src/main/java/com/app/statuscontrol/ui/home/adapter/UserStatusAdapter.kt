@@ -41,8 +41,10 @@ class UserStatusAdapter: ListAdapter<User, UserStatusAdapter.Holder>(Companion) 
 
         if (userStatus.status) {
             holder.binding.onlineImageView.showOnline()
+            holder.binding.tvOnline.text = "Online"
         } else {
             holder.binding.onlineImageView.showOffline()
+            holder.binding.tvOnline.text = "Offline"
         }
     }
 

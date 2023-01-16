@@ -28,9 +28,9 @@ class LoginViewModel @Inject constructor(
     val recoveryPasswordState: LiveData<Resource<Boolean>>
         get() = _recoveryPasswordState
 
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, deviceId: String) {
         viewModelScope.launch {
-            loginUseCase(email, password).onEach { state ->
+            loginUseCase(email, password, deviceId).onEach { state ->
                 _loginState.value = state
             }.launchIn(viewModelScope)
         }

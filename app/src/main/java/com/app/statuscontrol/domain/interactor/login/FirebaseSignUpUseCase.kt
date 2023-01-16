@@ -14,7 +14,7 @@ class FirebaseSignUpUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
 
-    suspend operator fun invoke(email: String, password: String, nick: String, name: String, isEmployee: Boolean): Flow<Resource<Boolean>> = flow {
+    suspend operator fun invoke(email: String, password: String, nick: String, name: String, isEmployee: Boolean, deviceId: String): Flow<Resource<Boolean>> = flow {
         emit(Resource.Loading)
         val userUID = authRepository.signUp(nick,password)
         if (userUID.isNotEmpty()) {
@@ -27,7 +27,8 @@ class FirebaseSignUpUseCase @Inject constructor(
                     nick = nick,
                     name = name,
                     status = true,
-                    userType = userType
+                    userType = userType,
+                    deviceID = deviceId
                 )
             )
 
