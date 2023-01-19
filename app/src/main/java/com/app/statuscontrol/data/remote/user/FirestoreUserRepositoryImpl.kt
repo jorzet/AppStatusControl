@@ -50,19 +50,23 @@ class FirestoreUserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUser(uid: String): User {
+    override suspend fun getUser(uid: String): User? {
         return try {
-            var loggedUser = User()
+            var loggedUser: User? = null
             FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
                 .document(uid)
                 .get()
                 .addOnSuccessListener {
-                    loggedUser = it.toObject(User::class.java)!!
+                    loggedUser = if (it != null) {
+                        it.toObject(User::class.java)!!
+                    } else {
+                        null
+                    }
                 }
                 .await()
             loggedUser
         } catch (e: Exception) {
-            User()
+            null
         }
     }
 }

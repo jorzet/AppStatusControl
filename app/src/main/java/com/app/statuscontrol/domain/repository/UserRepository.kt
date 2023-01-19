@@ -8,5 +8,5 @@ interface UserRepository {
 
     suspend fun modifyUser(user: User): Boolean
 
-    suspend fun getUser(uid: String): User
+    suspend fun getUser(uid: String): User?
 }

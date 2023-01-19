@@ -19,7 +19,11 @@ class FirebaseUserUseCase @Inject constructor(
         val firebaseUser = authRepository.getCurrentUser()
         firebaseUser?.let {
             val user = userRepository.getUser(it.uid)
-            emit(Resource.Success(user))
+            if (user != null) {
+                emit(Resource.Success(user))
+            } else {
+                emit(Resource.Error("User not found"))
+            }
         }
     }
 

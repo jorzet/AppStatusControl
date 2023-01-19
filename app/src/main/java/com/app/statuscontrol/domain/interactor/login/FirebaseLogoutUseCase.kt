@@ -20,13 +20,18 @@ class FirebaseLogoutUseCase @Inject constructor(
         val firebaseUser = authRepository.getCurrentUser()
         if (firebaseUser != null) {
             val user = userRepository.getUser(uid = firebaseUser.uid)
-            user.status = false
-            userRepository.modifyUser(user)
-            authRepository.logout()
-            saveSessionLocalInteractor.deleteUserSession()
+            if (user != null) {
+                user.status = false
+                userRepository.modifyUser(user)
+                authRepository.logout()
+                saveSessionLocalInteractor.deleteUserSession()
 
-            emit(Resource.Success(user))
-            emit(Resource.Finished)
+                emit(Resource.Success(user))
+                emit(Resource.Finished)
+            } else {
+                emit(Resource.Error("User not found"))
+                emit(Resource.Finished)
+            }
         } else {
             emit(Resource.Error("Logout error"))
             emit(Resource.Finished)

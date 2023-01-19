@@ -18,14 +18,19 @@ class FirebaseLoginUseCase @Inject constructor(
         val userUID = authRepository.login(nick,password)
         if (userUID.isNotEmpty()) {
             val user = userRepository.getUser(uid = userUID)
-            if (user.deviceID == deviceId || user.deviceID.isNullOrEmpty()) {
-                user.deviceID = deviceId
-                user.status = true
-                userRepository.modifyUser(user)
-                emit(Resource.Success(user))
-                emit(Resource.Finished)
+            if (user != null) {
+                if (user.deviceID == deviceId || user.deviceID.isNullOrEmpty()) {
+                    user.deviceID = deviceId
+                    user.status = true
+                    userRepository.modifyUser(user)
+                    emit(Resource.Success(user))
+                    emit(Resource.Finished)
+                } else {
+                    emit(Resource.Error("Solo se puede iniciar sesion en un solo dispositivo, devincula para poder iniciar sesion"))
+                    emit(Resource.Finished)
+                }
             } else {
-                emit(Resource.Error("Solo se puede iniciar sesion en un solo dispositivo, devincula para poder iniciar sesion"))
+                emit(Resource.Error("User not found"))
                 emit(Resource.Finished)
             }
         } else {
