@@ -19,4 +19,14 @@
     <string name="continue_register_text">Continuar</string>
     <string name="cancel_register_text">Cancelar</string>
 
+
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="msg_token_fmt" translatable="false">FCM registration Token: %s</string>
+
+    <string name="lane_text">Nombre de la caja</string>
+    <string-array name="lane_status_array">
+        <item>Abierto</item>
+        <item>Cerrado</item>
+    </string-array>
+
 </resources>

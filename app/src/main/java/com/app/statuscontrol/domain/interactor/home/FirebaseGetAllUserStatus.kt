@@ -1,20 +1,20 @@
-package com.app.statuscontrol.domain.interactor
+package com.app.statuscontrol.domain.interactor.home
 
 import com.app.statuscontrol.data.util.FirebaseConstants
-import com.app.statuscontrol.domain.model.LaneStatus
 import com.app.statuscontrol.domain.model.Resource
-import com.app.statuscontrol.domain.repository.LaneStatusRepository
+import com.app.statuscontrol.domain.model.User
+import com.app.statuscontrol.domain.repository.UserStatusRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
-class FirebaseGetAllLaneUseCase @Inject constructor(
-    private val laneStatusRepository: LaneStatusRepository
+class FirebaseGetAllUserStatus @Inject constructor(
+    private val userStatusRepository: UserStatusRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<List<LaneStatus>>> = callbackFlow {
-        val event = FirebaseFirestore.getInstance().collection(FirebaseConstants.LANE_STATUS_COLLECTION)
+    suspend operator fun invoke(): Flow<Resource<List<User>>> = callbackFlow {
+        val event = FirebaseFirestore.getInstance().collection(FirebaseConstants.USERS_COLLECTION)
 
         val subscription = event.addSnapshotListener { snapshot, error ->
 
@@ -25,18 +25,16 @@ class FirebaseGetAllLaneUseCase @Inject constructor(
 
             if (snapshot != null) {
 
-                val laneList = arrayListOf<LaneStatus>()
+                val userList = arrayListOf<User>()
                 snapshot.documents.map {
-                    val laneStatus = it.toObject(LaneStatus::class.java)
-                    laneStatus?.let { lane -> laneList.add(lane) }
+                    val laneStatus = it.toObject(User::class.java)
+                    laneStatus?.let { lane -> userList.add(lane) }
                 }
 
-                this.trySend(Resource.Success(laneList)).isSuccess
-
+                this.trySend(Resource.Success(userList)).isSuccess
             }
         }
 
         awaitClose { subscription.remove() }
     }
-
 }

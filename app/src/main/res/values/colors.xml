@@ -21,4 +21,7 @@
 
     <!--HOME-->
     <color name="blue_toolbar_home_background">#728BB6</color>
+
+    <color name="change_status_background_color">#4A4D93</color>
+    <color name="show_modifiers_background_color">#728BB6</color>
 </resources>

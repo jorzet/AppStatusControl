@@ -1,12 +1,14 @@
 package com.app.statuscontrol.di
 
-
-import com.app.statuscontrol.data.remote.FirebaseAuthRepositoryImpl
-import com.app.statuscontrol.data.remote.FirebaseLaneStatusRepositoryImp
-import com.app.statuscontrol.data.remote.FirestoreUserRepositoryImpl
-import com.app.statuscontrol.domain.repository.AuthRepository
-import com.app.statuscontrol.domain.repository.LaneStatusRepository
-import com.app.statuscontrol.domain.repository.UserRepository
+import com.app.statuscontrol.data.cache.SaveLaneLocalRepositoryImpl
+import com.app.statuscontrol.data.remote.user.FirebaseAuthRepositoryImpl
+import com.app.statuscontrol.data.remote.lane.FirebaseLaneStatusRepositoryImp
+import com.app.statuscontrol.data.remote.user.FirebaseUserStatusRepositoryImpl
+import com.app.statuscontrol.data.remote.user.FirestoreUserRepositoryImpl
+import com.app.statuscontrol.data.cache.SaveSessionLocalRepositoryImpl
+import com.app.statuscontrol.data.remote.employee.FirebaseEmployeeRepository
+import com.app.statuscontrol.data.remote.notification.FirebaseNotificationRepositoryImp
+import com.app.statuscontrol.domain.repository.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -23,6 +25,21 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(userRepository: FirestoreUserRepositoryImpl): UserRepository
 
     @Binds
-    abstract fun bindLaneStatusRepository(notesRepository: FirebaseLaneStatusRepositoryImp): LaneStatusRepository
+    abstract fun bindLaneStatusRepository(laneStatusRepository: FirebaseLaneStatusRepositoryImp): LaneStatusRepository
+
+    @Binds
+    abstract fun bindUserStatusRepository(userStatusRepository: FirebaseUserStatusRepositoryImpl): UserStatusRepository
+
+    @Binds
+    abstract fun bindEmployeeRepository(employeeRepository: FirebaseEmployeeRepository): EmployeeRepository
+
+    @Binds
+    abstract fun bindSaveSessionLocalRepository(saveSessionLocalRepository: SaveSessionLocalRepositoryImpl): SaveSessionLocalRepository
+
+    @Binds
+    abstract fun bindSaveLaneLocalRepository(saveLaneLocalRepository: SaveLaneLocalRepositoryImpl): SaveLaneLocalRepository
+
+    @Binds
+    abstract fun bindNotificationRepository(notificationRepository: FirebaseNotificationRepositoryImp): NotificationRepository
 
 }

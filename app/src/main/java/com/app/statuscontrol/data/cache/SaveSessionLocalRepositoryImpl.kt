@@ -1,17 +1,21 @@
-package com.app.statuscontrol.domain.interactor;
+package com.app.statuscontrol.data.cache;
 
 import android.preference.PreferenceManager;
 import com.app.statuscontrol.FirebaseApp
 import com.app.statuscontrol.domain.model.User;
+import com.app.statuscontrol.domain.repository.SaveSessionLocalRepository
 import com.google.gson.Gson
+import javax.inject.Inject
 
-class SaveSessionLocalInteractor {
+class SaveSessionLocalRepositoryImpl @Inject constructor(
+
+): SaveSessionLocalRepository {
 
     companion object {
         private const val USER_KEY = "user_key"
     }
 
-    fun execute(user:User) {
+    override fun execute(user:User) {
         FirebaseApp.INSTANCE?.baseContext?.let {
             val preferences = PreferenceManager.getDefaultSharedPreferences(it)
             val editor = preferences.edit()
@@ -21,7 +25,7 @@ class SaveSessionLocalInteractor {
         }
     }
 
-    fun getSavedSession(): User? {
+    override fun getSavedSession(): User? {
         FirebaseApp.INSTANCE?.baseContext?.let {
             val preferences = PreferenceManager.getDefaultSharedPreferences(it)
             val userJson = preferences.getString(USER_KEY, "")
@@ -31,14 +35,14 @@ class SaveSessionLocalInteractor {
         return null
     }
 
-    fun deleteUserSession() {
+    override fun deleteUserSession() {
         FirebaseApp.INSTANCE?.baseContext?.let {
             val preferences = PreferenceManager.getDefaultSharedPreferences(it)
-            preferences.edit().remove(USER_KEY)
+            preferences.edit().remove(USER_KEY).commit()
         }
     }
 
-    fun clearCache() {
+    override fun clearCache() {
         FirebaseApp.INSTANCE?.baseContext?.let {
             val preferences = PreferenceManager.getDefaultSharedPreferences(it)
             preferences.edit().clear().commit()

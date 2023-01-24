@@ -159,6 +159,28 @@
                         android:inputType="textPersonName"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:layout_weight="0.5"
+                        android:text="Seleccione esta opcion solo si es empleado"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_is_employee"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.5"
+                        android:shadowColor="@color/white"/>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/register_button"
                     android:layout_width="match_parent"

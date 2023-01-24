@@ -1,8 +1,10 @@
 package com.app.statuscontrol.domain.model
 
 data class LaneStatus(
-    val lane: String = "",
-    val status: Boolean = false,
-    val modifiedBy: String = "",
-    val lastModification: String = ""
+    var id: String = "",
+    var lane: String = "",
+    var status: Boolean = false,
+    var modifiedBy: String = "",
+    var lastModification: String = "",
+    var userUid: String = ""
 )

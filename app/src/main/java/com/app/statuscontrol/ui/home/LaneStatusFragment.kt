@@ -9,17 +9,23 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.app.statuscontrol.databinding.FragmentLaneStatusBinding
 import com.app.statuscontrol.domain.model.Resource
+import com.app.statuscontrol.domain.model.User
+import com.app.statuscontrol.domain.model.UserType
 import com.app.statuscontrol.ui.home.adapter.LaneStatusAdapter
+import com.app.statuscontrol.utils.click
+import com.app.statuscontrol.utils.setGone
+import com.app.statuscontrol.utils.setInvisible
+import com.app.statuscontrol.utils.setVisible
 import com.app.statuscontrol.viewmodel.LaneStatusViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class LaneStatusFragment: Fragment() {
+class LaneStatusFragment(val user: User): Fragment() {
     // Binding
     private lateinit var binding: FragmentLaneStatusBinding
 
     // Adapter
-    private var laneAdapter: LaneStatusAdapter = LaneStatusAdapter()
+    private lateinit var laneAdapter: LaneStatusAdapter
 
     // View Model
     private val viewModel: LaneStatusViewModel by viewModels()
@@ -35,15 +41,22 @@ class LaneStatusFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initRecyclerView()
         initObservers()
-        setUpListeners()
-
+        setUpListener()
+        //viewModel.getUser()
+        initRecyclerView()
         getAllLaneStatus()
     }
 
-
     private fun initRecyclerView() {
+        val isAdmin = user.userType == UserType.ADMIN.userType
+
+        laneAdapter = LaneStatusAdapter(isAdmin)
+        if (isAdmin) {
+            laneAdapter.setEditLaneClickListener { laneStatus ->
+                (activity as HomeActivity).showEditLane(laneStatus)
+            }
+        }
         binding.rvLaneStatusList.apply {
             adapter = laneAdapter
         }
@@ -52,19 +65,60 @@ class LaneStatusFragment: Fragment() {
     private fun initObservers() {
         viewModel.laneListState.observe(viewLifecycleOwner) { state ->
             when(state) {
-                is Resource.Success -> laneAdapter.submitList(state.data)
-                is Resource.Error -> Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT)
-                    .show()
+                is Resource.Loading -> {
+                    handleLoading(true)
+                }
+                is Resource.Success -> {
+                    laneAdapter.submitList(state.data)
+                    handleLoading(false)
+                }
+                is Resource.Error -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT)
+                        .show()
+                    handleLoading(false)
+                }
+                else -> Unit
+            }
+        }
+        viewModel.userLaneState.observe(viewLifecycleOwner) { userState ->
+            when(userState) {
+                is Resource.Loading -> {
+                    handleLoading(true)
+                }
+                is Resource.Success -> {
+                    initRecyclerView()
+                    getAllLaneStatus()
+                    handleLoading(false)
+                }
+                is Resource.Error -> {
+                    handleLoading(false)
+                }
                 else -> Unit
             }
         }
     }
 
-    private fun setUpListeners() {
-
+    private fun setUpListener() {
+        binding.btnUserStatus click {
+            activity?.let {
+                (it as HomeActivity).showUserStatus()
+            }
+        }
     }
 
     private fun getAllLaneStatus() {
         viewModel.getAllLaneStatus()
+    }
+
+    private fun handleLoading(isLoading: Boolean) {
+        with(binding) {
+            if (isLoading) {
+                loading.setVisible()
+                scrollView.setInvisible()
+            } else {
+                loading.setGone()
+                scrollView.setVisible()
+            }
+        }
     }
 }
